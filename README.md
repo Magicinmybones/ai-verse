@@ -2,6 +2,8 @@
 
 Static HTML site with local font and image assets.
 
+Live site: https://ai-verse-54u.pages.dev/
+
 ## Deploy to Cloudflare Pages
 
-Upload the project root as a static site. With Wrangler: `npx wrangler pages deploy . --project-name=ai-verse`
+From this folder, run `npx wrangler pages deploy . --project-name ai-verse --branch main`.
