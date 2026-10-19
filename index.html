@@ -512,6 +512,49 @@ svg{display:block;overflow:visible}
   document.addEventListener('keydown',function(e){if(e.key==='Escape')set(false);});
   window.addEventListener('resize',function(){if(window.innerWidth>=720)set(false);});
 })();
+
+// One entrance timeline. The page's authored styles remain the final frame.
+(function(){
+  if(!Element.prototype.animate || window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+
+  var motion=[], ease='cubic-bezier(.22,1,.36,1)';
+  function reveal(selector,from,delay,duration){
+    var element=document.querySelector(selector);
+    if(!element || getComputedStyle(element).display==='none')return;
+    motion.push(element.animate([from,{opacity:1,transform:'none',clipPath:'inset(0 0 0 0)'}],{
+      delay:delay,duration:duration,easing:ease,fill:'backwards'
+    }));
+  }
+
+  // Quiet framing gives the headline room to lead.
+  reveal('.brand',{opacity:0,transform:'translateY(8px)'},60,510);
+  if(window.matchMedia('(max-width: 719.98px)').matches){
+    reveal('.menu-btn',{opacity:0,transform:'translateY(6px)'},180,440);
+  }else{
+    reveal('.nav-links',{opacity:0,transform:'translateY(7px)'},150,480);
+    reveal('.nav-cta',{opacity:0,transform:'translateY(7px)'},230,480);
+  }
+  reveal('.pill',{opacity:0,transform:'translateY(9px)'},310,550);
+
+  // The two designed desktop lines unfold in order; mobile keeps its natural wrap.
+  if(window.matchMedia('(min-width: 1024px) and (min-aspect-ratio: 23/20)').matches){
+    reveal('.h1 span:first-child',{opacity:1,transform:'translateY(15px)',clipPath:'inset(0 0 100% 0)'},450,820);
+    reveal('.h1 span:last-child',{opacity:1,transform:'translateY(15px)',clipPath:'inset(0 0 100% 0)'},590,820);
+  }else{
+    reveal('.h1',{opacity:1,transform:'translateY(12px)',clipPath:'inset(0 0 100% 0)'},450,820);
+  }
+  reveal('.lead',{opacity:0,transform:'translateY(10px)'},830,610);
+  reveal('.hero-cta',{opacity:0,transform:'translateY(9px) scale(.985)'},1030,600);
+
+  // The product interface resolves as a single foreground composition.
+  reveal('.dash-clip',{opacity:1,transform:'none',clipPath:'inset(0 0 100% 0)'},930,1050);
+  reveal('.tagline',{opacity:0,transform:'translateY(5px)'},1480,490);
+  reveal('.logos',{opacity:0,transform:'translateY(6px)'},1640,520);
+
+  Promise.all(motion.map(function(animation){return animation.finished.catch(function(){});})).then(function(){
+    motion.forEach(function(animation){animation.cancel();});
+  });
+})();
 </script>
 </body>
 </html>
